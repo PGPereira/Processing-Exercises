@@ -51,7 +51,7 @@ class pointlism{
   }
   
   void remake(){
-    stroke(color(colorCode[0], colorsCode[1], colorCode[2]));
+    stroke(color(colorCode[0], colorCode[1], colorCode[2]));
     dot newDotList [] = new dot[dotlist.length];
     for(int i = 0; i < dotlist.length; i++)
       newDotList[i] = getDot();
