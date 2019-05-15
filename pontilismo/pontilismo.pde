@@ -6,14 +6,14 @@ class point{
   }
   
   float euclidianDistance(point p){
-    return sqrt((this.x - p.x) * (this.x - p.x) + (this.y - p.y) * (this.y - p.y)); 
+    return sqrt(pow((this.x - p.x),2) + pow((this.y - p.y), 2)); 
   }
 }
 
-float baseRadius = 210;
+float baseRadius = 265;
 float graduation = baseRadius/11.0;
 color colorsObj[][]= {
-  {221, 211, 199},
+  {231, 221, 215},
   {220, 204, 178},
   {193, 189, 177},
   {153, 147, 135},
@@ -51,11 +51,8 @@ class pointlism{
   }
   
   void remake(){
-    stroke(color(colorCode[0], colorCode[1], colorCode[2]));
-    dot newDotList [] = new dot[dotlist.length];
     for(int i = 0; i < dotlist.length; i++)
-      newDotList[i] = getDot();
-    this.dotlist = newDotList;
+      this.dotlist[i] = getDot();
   }
 }
 
@@ -77,11 +74,10 @@ class dot {
 }
 
 color randomColor(int red, int green, int blue){
-  float total  = red + green + blue;
-  float rV = (red/total) * 15;
-  float gV = (green/total) * 15;
-  float bV = (blue/total) * 15;
-  return color(red + random(-rV,rV), green + random(-gV,gV), blue + random(-bV,bV));
+  float total  = (float) Math.cbrt(red*red + green*green + blue*blue);
+  float rand = random(total - 40, total + 40);
+  float c = rand/total;
+  return color(red*c, green*c, blue*c);
 }
 
 class rectanglePointlism extends pointlism{
@@ -142,46 +138,29 @@ int getNOfDotsForRectangle(float dotRadius, float w, float h){
 }
 
 void setup(){
-  size(800, 600);
+  size(800, 800);
   ellipseMode(RADIUS);
   noStroke();
-  //stroke(color(colorsObj[13][0], colorsObj[13][1], colorsObj[13][2]));
   point center = new point(width/2, height/2);
-  float maxDotSize = graduation * (0.66);
-  float bgDotSize = graduation;
-  cP[0] = new rectanglePointlism(new point(0, 0), width, height, getNOfDotsForRectangle(bgDotSize, width, height), bgDotSize, colorsObj[0]);
+  float maxDotSize = graduation / 5;
+  
+  cP[0] = new rectanglePointlism(new point(0, 0), width, height, getNOfDotsForRectangle(maxDotSize, width, height), maxDotSize, colorsObj[0]);
   for (int i = 1; i < 12; i++){    
     cP[i] = new circlePointlism(center, baseRadius - i*graduation, getNOfDotsForCircle(maxDotSize, 165 - i * 15), maxDotSize, colorsObj[i]);
   }
-  cP[12] = new rectanglePointlism(new point((width - graduation)/2, height/2), graduation, graduation*6.5, getNOfDotsForRectangle(graduation/4, graduation*6.5, graduation)/3, graduation/4, colorsObj[12]);
-  cP[13] = new rectanglePointlism(new point((width - graduation)/2, height/2 + graduation * 5.5), graduation, graduation*4.5, getNOfDotsForRectangle(graduation/4, graduation*4.5, graduation)/3, graduation/4, colorsObj[13]);
-  
-  //for(pointlism c : cP){
-  //  Repoints r = new Repoints(c);
-  //  r.start();
-  //};
+  cP[12] = new rectanglePointlism(new point((width - graduation)/2, height/2), graduation, graduation*6, getNOfDotsForRectangle(graduation/4, graduation*6.5, graduation), maxDotSize, colorsObj[12]);
+  cP[13] = new rectanglePointlism(new point((width - graduation)/2, height/2 + graduation * 6), graduation, graduation*4, getNOfDotsForRectangle(graduation/4, graduation*4.5, graduation), maxDotSize, colorsObj[13]);
 }
 
 void draw(){
+  background(231, 221, 215);
+  println(frameRate);
   for(pointlism c : cP){
     c.make();
     c.remake();
   };
-}
-
-class Repoints extends Thread {
-  pointlism points;
-  Repoints(pointlism points){
-    this.points = points;
-  }
   
-  public void run(){
-    dot newDotList [] = new dot[this.points.dotlist.length];
-    for(int i = 0; i < newDotList.length; i++){
-      newDotList[i] = this.points.getDot();
-    }
-    this.points.dotlist = newDotList;
-    Repoints r = new Repoints(this.points);
-    r.start();
-  }
+  if (frameCount <= 200){
+    saveFrame();
+  } else exit();
 }
