@@ -1,0 +1,3 @@
+interface dot {
+  void paint();
+}
