@@ -1,9 +1,9 @@
 class rectLayer implements layer {
     point topCorner;
     float h, w;
-    float[] c;
+    color c;
     
-    float[] getColor(){
+    color getColor(){
       return c;
     }
   
@@ -16,7 +16,7 @@ class rectLayer implements layer {
       rect(topCorner.x, topCorner.y, w, h);
     }
 
-    rectLayer(point topCorner, float w, float h, float[] c) {
+    rectLayer(point topCorner, float w, float h, color c) {
       this.topCorner = topCorner;
       this.h = h;
       this.w = w;

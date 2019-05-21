@@ -1,102 +1,87 @@
-float baseRadius = 265; //<>//
-float graduation = baseRadius/11.0;
-float maxDotSize = graduation/2;
+float maxDotSize; //<>//
 int stepSize;
-float colorsObj[][]= {
-  //{231, 221, 215},
-  {220, 204, 178}, //0
-  {193, 189, 177}, //1
-  {153, 147, 135}, //2
-  {40, 39, 37}, //3
-  {175, 142, 151}, //4
-  {49, 90, 120}, //5
-  {120, 156, 204}, //6
-  {76, 146, 73}, //7
-  {228, 194, 94}, //8
-  {222, 152, 66}, //9
-  {240, 91, 51}, //10
-  {169, 164, 149}, //11
-  {165, 132, 63} //12
+color colorsObj[]= {
+  color(220, 204, 178),
+  color(193, 189, 177),
+  color(153, 147, 135),
+  color(40, 39, 37),
+  color(175, 142, 151),
+  color(49, 90, 120),
+  color(120, 156, 204),
+  color(76, 146, 73),
+  color(228, 194, 94),
+  color(222, 152, 66),
+  color(240, 91, 51),
+  color(169, 164, 149),
+  color(165, 132, 63)
 };
 
-float[] mainColor = {231.0, 221.0, 215.0};
+color mainColor = color(231, 221, 215);
 
 image main;
 
 void setup() {
-  size(800, 800);
   noStroke();
   ellipseMode(RADIUS);
-  stepSize = 4 * 20;
-  point center = new point(width/2, height/2);
-  main = new image(13, mainColor);
+  stepSize = 20;
+  main = new image("./teste.jpg");
   
-  main.layers[0] =  new rectLayer(new point((width - graduation)/2, height/2 + graduation * 7), graduation, graduation * 4, colorsObj[12]);
-  main.layers[1] =  new rectLayer(new point((width - graduation)/2, height/2), graduation, graduation*7, colorsObj[11]);
-
-
-  for(int i = 2; i < 13; i++){
-    int antI = 13 - i;
-    main.layers[i] = new circleLayer(center, baseRadius - (12 - i) * graduation, colorsObj[antI]);
-  }
+  
+  size(1013, 800);
+  maxDotSize = min(width, height)/50;
 }
 
 
 void draw() {
-    background(0);
-    doPointlism(3, 2);
-    doReticulate(1, 1);
-  
     if (frameCount < stepSize){
-      background(closestGray(mainColor));
+      //background(closestGray(mainColor));
       doPointlism(1, 2);
     }
     else if (frameCount < stepSize * 2){
-      background(closestGray(mainColor));
+      //background(closestGray(mainColor));
       doPointlism(2, 2);
     }
     else if (frameCount < stepSize * 3) {
-      background(closestGray(mainColor));
+      //background(closestGray(mainColor));
       rotates = false;
       doPointlism(3, 2);
     }
     else if (frameCount < stepSize * 4){
-      background(closestGray(mainColor));
+      //background(closestGray(mainColor));
       rotates = true;
       doPointlism(3, 2);
-    } //<>// //<>// //<>//
+    } 
     else if (frameCount < stepSize * 5){
       background(0);
       doReticulate(1, 2);
     }
     else if (frameCount < stepSize * 6){
       background(0);
-      doReticulate(2, 2);
+      doReticulate(2, 1);
     }
     else if (frameCount < stepSize * 7) {
       background(0);
       rotates = false;
-      doReticulate(3, 2);
+      doReticulate(3, 1);
     }
     else if (frameCount < stepSize * 8){
       background(0);
       rotates = true;
-      doReticulate(3, 2);
-    }
-    else if (frameCount < stepSize * 9){
-      background(0);
-      rotates = true;
-      doPointlism(3, 2);
-      doReticulate(1, 3);
-    }
+      doReticulate(3, 1);
+    } else { 
+      doPixelate(2, 1, 12);
+      //doReticulate(1, 4);
+    } 
     
     if(frameCount < stepSize * 9){
-      saveFrame();
+      //saveFrame();
     } else exit();
+    
+    println(frameCount, frameRate);
 }
 
 void doReticulate(int modeReticulate, int colorMode){
-  int step = 3;
+  int step = 2;
   for(int i = step; i < width; i+=(step*3)){
     for(int j = step; j < height; j+=(step*3)){
         dot d = new dot(i, j, step, modeReticulate);
@@ -121,7 +106,17 @@ float getNOfDots(float dotSize, int dotType){
 
 void doPointlism(int modePoint, int colorMode){
   for (int i = 0; i < 10 * getNOfDots((maxDotSize)/2, modePoint); i++) {
-    dot d = new dot(random(width), random(height), random(maxDotSize), modePoint);
+    dot d = new dot(random(width), random(height), random(1, maxDotSize), modePoint);
     main.paintDot(colorMode, d);
+  }
+}
+
+void doPixelate(int mode, int colorMode, int pixelSize){
+  int step = pixelSize;
+  for(int i = 0; i < width; i+=step){
+    for(int j = 0; j < height; j+=step){
+        dot d = new dot(i, j, step, mode);
+        main.paintDot(colorMode, d);
+    }
   }
 }

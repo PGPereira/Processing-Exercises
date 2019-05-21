@@ -13,6 +13,10 @@ class dot  {
     return center;
   }
   
+  float getRadius(){
+    return this.radius;
+  }
+  
   void assignColor(color c){
     this.c = c;
   }
