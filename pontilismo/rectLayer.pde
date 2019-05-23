@@ -8,7 +8,7 @@ class rectLayer implements layer {
     }
   
     boolean pointInBoundary(dot d){
-      point p = d.getCenter();  //<>//
+      point p = d.getCenter(); 
       return (p.x >= topCorner.x && p.x <= (topCorner.x + w) && p.y >= topCorner.y && p.y <= (topCorner.y + h)); //<>//
     }
     

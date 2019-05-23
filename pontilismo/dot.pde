@@ -6,6 +6,7 @@ boolean rotates = false;
 class dot  {
   point center;
   color c;
+  float angle;
   float radius;
   int type;
   
@@ -15,6 +16,10 @@ class dot  {
   
   float getRadius(){
     return this.radius;
+  }
+  
+  float getAngle(){
+     return this.angle;
   }
   
   void assignColor(color c){
@@ -28,23 +33,25 @@ class dot  {
         circle(center.x, center.y, radius);
         break;
       case 2:
-        square(center.x, center.y, radius);
+        rectMode(RADIUS);
+        if (rotates) getSquare(center, radius, angle); 
+        else square(center.x, center.y, radius);
         break;
       case 3: 
-        if (rotates) getTriangle(center, radius, random(0, 2 * PI)); 
+        if (rotates) getTriangle(center, radius, angle); 
         else getTriangle(center, radius, 0) ;
         break;
     }
   }
   
-  dot(point center, float radius, color c, int type) {
+  dot(point center, float radius, float angle, int type) {
      this.center = center;
      this.radius = radius;
-     this.c = c;
+     this.angle = angle;
      this.type = type;
   }
   
-  dot(float x, float y, float radius, int type){
+  dot(float x, float y, float radius, float angle, int type){
     this.center = new point(x, y);
     this.radius = radius;
     this.type = type;

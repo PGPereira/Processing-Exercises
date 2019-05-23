@@ -17,77 +17,76 @@ color colorsObj[]= {
 };
 
 color mainColor = color(231, 221, 215);
-
+point mousePos;
 image main;
+
+float diagonal; 
 
 void setup() {
   noStroke();
   ellipseMode(RADIUS);
-  stepSize = 20;
-  main = new image("./teste.jpg");
   
+  stepSize = 20;
+  main = new image("Fidel.jpg");
   
   size(1013, 800);
+  diagonal = euclidianDistance(0, 0, width, height);
   maxDotSize = min(width, height)/50;
 }
 
 
 void draw() {
-    if (frameCount < stepSize){
-      //background(closestGray(mainColor));
-      doPointlism(1, 2);
-    }
-    else if (frameCount < stepSize * 2){
-      //background(closestGray(mainColor));
-      doPointlism(2, 2);
-    }
-    else if (frameCount < stepSize * 3) {
-      //background(closestGray(mainColor));
-      rotates = false;
-      doPointlism(3, 2);
-    }
-    else if (frameCount < stepSize * 4){
-      //background(closestGray(mainColor));
-      rotates = true;
-      doPointlism(3, 2);
-    } 
-    else if (frameCount < stepSize * 5){
-      background(0);
-      doReticulate(1, 2);
-    }
-    else if (frameCount < stepSize * 6){
-      background(0);
-      doReticulate(2, 1);
-    }
-    else if (frameCount < stepSize * 7) {
-      background(0);
-      rotates = false;
-      doReticulate(3, 1);
-    }
-    else if (frameCount < stepSize * 8){
-      background(0);
-      rotates = true;
-      doReticulate(3, 1);
-    } else { 
-      doPixelate(2, 1, 12);
-      //doReticulate(1, 4);
-    } 
+    mousePos = new point(mouseX, mouseY);
+    fill(255,255, 255, 10);
+    rect(0, 0, width, height);
     
-    if(frameCount < stepSize * 9){
-      //saveFrame();
-    } else exit();
+    int brush = frameCount / stepSize;
+    brush %= 9;
     
-    println(frameCount, frameRate);
-}
-
-void doReticulate(int modeReticulate, int colorMode){
-  int step = 2;
-  for(int i = step; i < width; i+=(step*3)){
-    for(int j = step; j < height; j+=(step*3)){
-        dot d = new dot(i, j, step, modeReticulate);
-        main.paintDot(colorMode, d);
+    switch(brush){
+      case 0:
+        doPointlism(1, 2);
+        break;
+      case 1:
+        rotates = true;
+        doPointlism(2, 2);
+        break;
+      case 2:
+        rotates = false;
+        doPointlism(3, 2);
+        break;
+      case 3:
+        doPixelate(2, 2, 6);
+        doReticulate(1, 2);
+        break;
+      case 4:
+        doPixelate(2, 1, 6);
+        doReticulate(2, 2);
+        break;
+      case 5:
+        doPixelate(2, 1, 6);
+        rotates = false;
+        doReticulate(3, 2);
+        break;
+      case 6:
+        doPixelate(2, 1, 12);
+        rotates = true;
+        doReticulate(3, 2);
+        break;
+       case 7:
+        rotates = true;
+        doVortice(2, 1);
+        break;
+      case 8:
+        doPixelate(2, 4, 6);
+        doPixelate(1, 2, 3);
+        doReticulate(3, 2);
+        break;
     }
-  }
+    
+    //if(frameCount < stepSize * 9){
+    //  saveFrame("frames/fidel-######.png");
+    //} else exit();
 }
 
 float getNOfDots(float dotSize, int dotType){
@@ -106,17 +105,38 @@ float getNOfDots(float dotSize, int dotType){
 
 void doPointlism(int modePoint, int colorMode){
   for (int i = 0; i < 10 * getNOfDots((maxDotSize)/2, modePoint); i++) {
-    dot d = new dot(random(width), random(height), random(1, maxDotSize), modePoint);
+    point center = new point(random(width), random(height));
+    dot d = new dot(center, random(1, maxDotSize), angleFromPoints(mousePos, center), modePoint);
     main.paintDot(colorMode, d);
+  }
+}
+
+void doReticulate(int modeReticulate, int colorMode){
+  int step = 2;
+  for(int i = step; i < width; i+=(step*3)){
+    for(int j = step; j < height; j+=(step*3)){
+        dot d = new dot(i, j, step, random(0, 2 * PI), modeReticulate);
+        main.paintDot(colorMode, d);
+    }
   }
 }
 
 void doPixelate(int mode, int colorMode, int pixelSize){
   int step = pixelSize;
-  for(int i = 0; i < width; i+=step){
-    for(int j = 0; j < height; j+=step){
-        dot d = new dot(i, j, step, mode);
+  for(int i = 0; i < width; i+= (2 * step)){
+    for(int j = 0; j < height; j+=(2 * step)){
+        dot d = new dot(i, j, step, random(0, 2 * PI), mode);
         main.paintDot(colorMode, d);
     }
+  }
+}
+
+void doVortice(int mode, int colorMode){
+  float c = maxDotSize/diagonal;
+  for (int i = 0; i < 10 * getNOfDots((maxDotSize)/2, mode); i++) {
+    point center = new point(random(width), random(height));
+    float size = (center.euclidianDistance(mousePos) * c) + 1;
+    dot d = new dot(center, size, angleFromPoints(mousePos, center), mode);
+    main.paintDot(colorMode, d);
   }
 }

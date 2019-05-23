@@ -14,8 +14,8 @@ float[] vectorMultiplication(float[] v1, float[] v2){
   }
 }
 
-double[] constProductD(double c, double[] v){
-  double[] ret = new double[v.length];
+float[] constProduct(float c, float[] v){
+  float[] ret = new float[v.length];
   for (int i = 0; i < v.length; i++){
     ret[i] = v[i] * c;
   }
@@ -23,10 +23,10 @@ double[] constProductD(double c, double[] v){
   return ret;
 }
 
-float[] constProduct(float c, float[] v){
+float[] constDivision(float c, float[] v){
   float[] ret = new float[v.length];
   for (int i = 0; i < v.length; i++){
-    ret[i] = v[i] * c;
+    ret[i] = v[i] / c;
   }
   
   return ret;
