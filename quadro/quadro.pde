@@ -49,8 +49,8 @@ class movingObject {
     posX += velX;
     posY += velY;
     if(frameCount % (convergence * 2) == 0){
-      velX *= -1.1;
-      velY *= -1.1;
+      velX *= -0.9;
+      velY *= -0.9;
     }
   };
 }

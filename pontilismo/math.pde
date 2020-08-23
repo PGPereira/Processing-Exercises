@@ -1,7 +1,7 @@
 void getTriangle(point center, float radius, float rotation){
-  triangle(center.x + radius * cos( 2 * PI / 6 + rotation), center.y + radius * sin( 2 * PI / 6 + rotation), 
-           center.x + radius * cos( 6 * PI / 6 + rotation), center.y + radius * sin( 6 * PI / 6 + rotation), 
-           center.x + radius * cos(10 * PI / 6 + rotation), center.y + radius * sin(10 * PI / 6 + rotation));
+  triangle(center.x + radius * cos(PI / 3 + rotation), center.y + radius * sin(PI / 3 + rotation), 
+           center.x + radius * cos(PI + rotation), center.y + radius * sin(PI + rotation), 
+           center.x + radius * cos(5 * PI / 3 + rotation), center.y + radius * sin(5 * PI / 3 + rotation));
 }
 
 void getSquare(point center, float radius, float rotation){
@@ -13,9 +13,7 @@ void getSquare(point center, float radius, float rotation){
 }
 
 int getNumberWithBounds(int min, int n, int max){
-  if (n < min) return min;
-  if (n > max) return max;
-  return n;
+  return max(min, min(max, n));
 }
 
 float angleFromPoints(point A, point B){
@@ -25,10 +23,6 @@ float angleFromPoints(point A, point B){
   return atan2(dy, dx);
 }
 
-float euclidianDistance(int x1, int x2, int y1, int y2){
-  point a, b;
-  a = new point(x1, y1);
-  b = new point(x2, y2);
-  
-  return a.euclidianDistance(b);
+float euclidianDistance(int x1, int y1, int x2, int y2){
+  return sqrt(pow((x1 - x2),2) + pow((y1 - y2), 2));
 }
