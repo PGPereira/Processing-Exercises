@@ -1,17 +1,16 @@
-public class CorwellCoordinates implements CorwellBoard {
+public class CorwellCoordinates {
     private short[][] neighborsBoard;
     private int bWidth, bHeight;
-    private ArrayList<ArrayList<short[]>> stack;
-    private int[][] lastTimeAlive;
+    private ArrayList<ArrayList<short[]>> boardStack;
+    private int count;
     
     CorwellCoordinates(int w, int h) {
         this.bWidth = w;
         this.bHeight = h;
-        this.stack = new ArrayList<ArrayList<short[]>>();
-        this.lastTimeAlive = new int[w][h];
+        this.boardStack = new ArrayList<ArrayList<short[]>>();
+        this.count = 0;
         
-        ArrayList<short[]> coordinates = new ArrayList<short[]>(this.getWidth() * this.getHeight());
-        
+        ArrayList<short[]> coordinates = new ArrayList<short[]>(this.getWidth() * this.getHeight());   
         for (short i = 0; i < w; i++) {
             for (short j = 0; j < h; j++) {
                 if (noise(i / 10.0, j / 10.0) > 0.5) { 
@@ -22,12 +21,15 @@ public class CorwellCoordinates implements CorwellBoard {
         }
         
         coordinates.trimToSize();
-        this.stack.add(coordinates);
+        this.boardStack.add(coordinates);
         calculateNeighborsBoard();
     }
     
     public void previousStep() {
-        this.stack.remove(stack.size() - 1);
+        if (count > 0) {
+          this.count--;
+        }
+        
         calculateNeighborsBoard();
     }
     
@@ -44,7 +46,7 @@ public class CorwellCoordinates implements CorwellBoard {
         }
         
         coordinates.trimToSize();
-        this.stack.add(coordinates);
+        this.boardStack.add(coordinates);
         calculateNeighborsBoard();
     }
     
@@ -59,7 +61,7 @@ public class CorwellCoordinates implements CorwellBoard {
     }
     
     public boolean getCell(int w, int h) {
-        return this.stack.get(this.stack.size() - 1).parallelStream().anyMatch(a -> a[0] == getX(w) && a[1] == getY(h));
+        return this.boardStack.get(this.boardStack.size() - 1).parallelStream().anyMatch(a -> a[0] == getX(w) && a[1] == getY(h));
     }
     
     public int getX(int x) {
@@ -71,7 +73,7 @@ public class CorwellCoordinates implements CorwellBoard {
     }
     
     public int getCount() {
-        return this.stack.size();
+        return this.boardStack.size();
     }
     
     public int getWidth() {
@@ -82,38 +84,35 @@ public class CorwellCoordinates implements CorwellBoard {
         return this.bHeight;
     }
     
-    private void calculateNeighborsBoard() {
+    private short[][] calculateNeighborsBoard() {
         short[][] nBoard = new short[this.getWidth()][this.getHeight()];
         
-        for (short[] coordinate : this.getCoordinates()) {
-            short i = coordinate[0];
-            short j = coordinate[1];
-            
-            for (int x = i - 1; x <= i + 1; x++) {
-                for (int y = j - 1; y <= j + 1; y++) {
-                    nBoard[getX(x)][getY(y)]++;
+        getCoordinates(this.boardStack.size() - 1)
+           .parallelStream()
+           .forEach(coordinate -> {
+                short i = coordinate[0];
+                short j = coordinate[1];
+                for (int x = i - 1; x <= i + 1; x++) {
+                    for (int y = j - 1; y <= j + 1; y++) {
+                        nBoard[getX(x)][getY(y)]++;
+                    }
                 }
-            }
-            
-            nBoard[i][j]--;
-        } 
+                
+                nBoard[i][j]--;
+            });
         
-        this.setNeighborsBoard(nBoard);
+        return nBoard;
     }
     
     public void setNeighborsBoard(short[][] board) {
         this.neighborsBoard = board;
     };
     
-    public ArrayList<short[]> getCoordinates() {
-        return this.stack.get(this.stack.size() - 1);
+    public ArrayList<short[]> getCoordinates(int stackCount) {
+        return this.boardStack.get(stackCount);
     }
     
     private int getCoordinatesCount() {
-        return this.stack.get(this.stack.size() - 1).size();
-    }
-    
-    public int getLastAlive(int i, int j) {
-        return this.lastTimeAlive[i][j];
+        return this.boardStack.get(this.boardStack.size() - 1).size();
     }
 }

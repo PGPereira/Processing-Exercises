@@ -69,12 +69,14 @@ public class CorwellGrid {
         return this.boardStack.get(stackCount)[getX(w)][getY(h)];
     }
     
-    private  int getX(int x) {
-        return Math.floorMod(x, this.getWidth());
+    private  int getX(int value) {
+        int mod = this.getWidth();
+        return ((value % mod) + mod) % mod;
     }
     
-    private  int getY(int y) {
-        return Math.floorMod(y, this.getHeight());
+    private  int getY(int value) {
+        int mod = this.getHeight();
+        return ((value % mod) + mod) % mod;
     }
     
     public int getCount() {
@@ -91,18 +93,20 @@ public class CorwellGrid {
     
     private short[][] calculateNeighborsBoard() {
         short[][] nBoard = new short[this.getWidth()][this.getHeight()];
-        for (short[] coordinate : this.getCoordinates(this.boardStack.size() - 1)) {
-            short i = coordinate[0];
-            short j = coordinate[1];
-            
-            for (int x = i - 1; x <= i + 1; x++) {
-                for (int y = j - 1; y <= j + 1; y++) {
-                    nBoard[getX(x)][getY(y)]++;
+        
+        getCoordinates(this.boardStack.size() - 1)
+           .parallelStream()
+           .forEach(coordinate -> {
+                short i = coordinate[0];
+                short j = coordinate[1];
+                for (int x = i - 1; x <= i + 1; x++) {
+                    for (int y = j - 1; y <= j + 1; y++) {
+                        nBoard[getX(x)][getY(y)]++;
+                    }
                 }
-            }
-            
-            nBoard[i][j]--;
-        } 
+                
+                nBoard[i][j]--;
+            });
         
         return nBoard;
     }
