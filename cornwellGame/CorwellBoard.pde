@@ -18,12 +18,4 @@ public interface CorwellBoard {
     public void nextStep();
     
     public ArrayList<short[]> getCoordinates();
-    
-    private void printBoard() {
-        ArrayList<short[]> coords = this.getCoordinates();
-        for (int i = 0; i < coords.size(); i++) {
-            short[] coord = coords.get(i);   
-            print(coord[0], coord[1], '\n');
-        } 
-    }
 }
