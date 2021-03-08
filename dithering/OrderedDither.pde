@@ -1,85 +1,65 @@
-class OrderedDither {
+class OrderedDither implements Dither {
   int colorSpace, algorithm;
   ColorManager colorManager;
-  color[] colorPalette;
-  short[][][] ditheringSpace;
-  int[][][] threshold = {
-    {
-      {64,  128},
-      {192, 0}
-    },{
-      {0, 128, 32, 160},
-      {192, 64, 224, 96},
-      {48, 176, 16, 144},
-      {246, 112, 208, 80},
-    }
-  };
+  ColorPalette palette;
+  float[][] threshouldMatrix;
+  String name;
   
-  OrderedDither(color[] palette, int algorithm) {
-    this.colorSpace = palette.length;
-    this.algorithm = algorithm;
-    this.ditheringSpace = new short[256][256][256];
-    this.colorManager = new ColorManager();
-    this.colorPalette = palette;
-    
-    for (int r = 0; r < 256; r++) {
-      for (int g = 0; g < 256; g++) {
-        for (int b = 0; b < 256; b++) {
-          this.ditheringSpace[r][g][b] = -1;
-          // INITIALIZE PD ONLY WHEN THE COLOR GET ACESSED.
-          //for(short i = 0; i < this.colorSpace; i++) {
-          //  float distance = this.getColorDistance(color(r, g, b), this.colorPalette[i]);
-          //  if (distance < lessDistance) {
-          //    this.ditheringSpace[r][g][b] = i;
-          //    lessDistance = distance;
-          //  }
-          //}
-        }
-      }  
-    }
+  OrderedDither(ColorManager colorManager, ColorPalette palette, float[][] threshouldMatrix) {
+    this.palette = palette;
+    this.colorManager = colorManager;
+    this.threshouldMatrix = threshouldMatrix;
+    this.name = "Ordered Dither " + threshouldMatrix.length + "x" + threshouldMatrix[0].length;
   }
   
-  public color getColorInPalette(color c) {
-    int r = int(c >> 16 & 0xFF);
-    int g = int(c >> 8 & 0xFF);
-    int b = int(c & 0xFF);
-    int k = ditheringSpace[r][g][b];
-    if (k == -1) {
-      float lessDistance = 999999999;
-      for(short i = 0; i < this.colorSpace; i++) {
-        color f = color(r,g,b);
-        float distance = colorManager.getColorDistance(f, this.colorPalette[i]);
-        if (distance < lessDistance) {
-          k = this.ditheringSpace[r][g][b] = i;
-          lessDistance = distance;
-        }
-      }
-    }
-
-    return colorPalette[k];
+  public String getName() {
+    return this.name;
+  }
+  
+  public ColorPalette getPalette() {
+    return this.palette;
+  }
+  
+  public void setPalette(color[] palette) {
+    this.palette = new ColorPalette(colorManager, palette);
+  }
+  
+  public void setPalette(ColorPalette palette) {
+    this.palette = palette;
   }
   
   public PImage getDitheredImage(PImage image) {
     PImage changed = image.copy();
     
+    int tWidth = threshouldMatrix.length;
+    //int maxRatio = threshouldMatrix[0].length * threshouldMatrix.length;
+    //color[][] mix = getMathematicalMixColor(image, threshouldMatrix);
+    //float factor = 255/4.0;
     changed.loadPixels();
-    int tWidth = threshold[algorithm].length;
-    
     for(int i = 0; i < changed.width; i++) {
-      int tHeight = threshold[algorithm][i % tWidth].length;
+      int tHeight = threshouldMatrix[i % tWidth].length;
       for(int j = 0; j < changed.height; j++) {
-        int index = colorManager.getPixelIndex(i, j, image);
+        int index = colorManager.getPixelIndex(i, j, changed);
         color oldColor = changed.pixels[index];
-        int lim = threshold[algorithm][i % tWidth][j % tHeight];
-        float r = (red(oldColor) >= lim) ? 255 : 0;
-        float g = (green(oldColor) >= lim) ? 255 : 0;
-        float b = (blue(oldColor) >= lim) ? 255 : 0;
-        changed.pixels[index] = getColorInPalette(color(r,g,b));
+        //ColorMixer plan = palette.deviseBestMixingPlan(oldColor, maxRatio);
+        
+        float lim = threshouldMatrix[i % tWidth][j % tHeight];
+        
+        ////float value = brightness(oldColor) > lim ? lim : 0;
+        float r = (float)(oldColor >> 16 & 0xFF) * (1 + lim);
+        float g = (float)(oldColor >> 8 & 0xFF) * (1 + lim);
+        float b = (float)(oldColor & 0xFF) * (1 + lim);
+        
+        //float r = (float)(oldColor >> 16 & 0xFF) + (lim * factor);
+        //float g = (float)(oldColor >> 8 & 0xFF) + (lim * factor);
+        //float b = (float)(oldColor & 0xFF) + (lim * factor);
+        
+        changed.pixels[index] = palette.getEquivalentColor(color(r,g,b));
+        //changed.pixels[index] = plan.colors[lim < plan.ratio ? 1 : 0];
       }
     }
       
     changed.updatePixels();
-    
     return changed;
   }
 }
